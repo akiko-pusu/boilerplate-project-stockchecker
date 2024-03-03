@@ -19,9 +19,15 @@ Viewing two stocks and liking them: GET request to /api/stock-prices/
 実際は、Functional Tests で5つ分パスするようなダミーのコードでも OK です。
 */
 
-suite('Functional Tests', function() {
+suite('Functional Tests', function () {
+  let likes = 0;
+  let rel_likes_0 = 0;
+  let rel_likes_1 = 0;
+
+  // set timeout to 5000 from 2000 (default) to prevent timeout error.
+  this.timeout(5000);
+
   test('Viewing one stock: GET request to /api/stock-prices/', function (done) {
-    /*
     chai.request(server)
       .get('/api/stock-prices/')
       .query({
@@ -31,32 +37,65 @@ suite('Functional Tests', function() {
         assert.equal(res.status, 200)
         done()
       })
-      */
-      assert.equal(true, true)
-      done()
   })
 
-  // TODO: should be replaced
   test('Viewing one stock and liking it: GET request to /api/stock-prices/', function (done) {
-    assert.equal(true, true)
-    done()
+    chai.request(server)
+      .get('/api/stock-prices/')
+      .query({
+        stock: 'GOOG',
+        like: 'true'
+      })
+      .end(function (_err, res) {
+        const ticker = res.body.stockData;
+        likes = ticker.likes;
+        assert.typeOf(ticker.likes, 'number')
+        done()
+      })
   })
 
-  // TODO: should be replaced
   test('Viewing the same stock and liking it again: GET request to /api/stock-prices/', function (done) {
-    assert.equal(true, true)
-    done()
+    chai.request(server)
+      .get('/api/stock-prices/')
+      .query({
+        stock: 'GOOG',
+        like: 'true'
+      })
+      .end(function (_err, res) {
+        const ticker = res.body.stockData;
+        assert.equal(ticker.likes, likes + 1);
+        done()
+      })
   })
 
-  // TODO: should be replaced
   test('Viewing two stocks: GET request to /api/stock-prices/', function (done) {
-    assert.equal(true, true)
-    done()
+    chai.request(server)
+      .get('/api/stock-prices/')
+      .query({
+        stock: ['GOOG', 'MSFT']
+      })
+      .end(function (_err, res) {
+        const ticker = res.body.stockData;
+        assert.typeOf(ticker, 'array');
+        assert.equal(ticker.length, 2);
+        rel_likes_0 = ticker[0].rel_likes;
+        rel_likes_1 = ticker[1].rel_likes;
+        done()
+      })
   })
 
-  // TODO: should be replaced
   test('Viewing two stocks and liking them: GET request to /api/stock-prices/', function (done) {
-    assert.equal(true, true)
-    done()
+    chai.request(server)
+      .get('/api/stock-prices/')
+      .query({
+        stock: ['GOOG', 'MSFT'],
+        like: 'true'
+      })
+      .end(function (_err, res) {
+        const ticker = res.body.stockData;
+        assert.equal(ticker[0].rel_likes, rel_likes_0);
+        assert.equal(ticker[1].rel_likes, rel_likes_1);
+        done()
+      })
   })
 });
